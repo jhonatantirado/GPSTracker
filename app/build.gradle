@@ -1,0 +1,40 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+
+    defaultConfig {
+        minSdkVersion 3
+        targetSdkVersion 25
+        versionCode 33
+        versionName '4.0'
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+
+    productFlavors {
+        regular {
+            applicationId "org.traccar.client"
+            buildConfigField "boolean", "HIDDEN_APP", "false"
+        }
+        hidden {
+            applicationId "org.traccar.client.hidden"
+            buildConfigField "boolean", "HIDDEN_APP", "true"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+        }
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.0'
+}
