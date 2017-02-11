@@ -45,4 +45,15 @@ www.traccar.org/client</string>
   <string name="hidden_alert">La app se ha ocultado. Para abrirla de nuevo por favor marque 8722227 (TRACCAR).</string>
   <string name="settings_cellphone">Número Celular para SMS</string>
   <string name="settings_cellphone_title">Número Celular</string>
+  <string name="settings_sendsms">Enviar SMS</string>
+  <string name="settings_sendtoserver">Enviar al servidor</string>
+  <string name="settings_sendsms_off_summary">SMS deshabilitado</string>
+  <string name="settings_sendsms_on_summary">SMS habilitado</string>
+  <string name="settings_sendtoserver_off_summary">Servidor deshabilitado</string>
+  <string name="settings_sendtoserver_on_summary">Servidor habilitado</string>
+  <string name="message">Nuevo mensaje</string>
+  <string name="phonenumber"></string>
+  <string name="position">Posición</string>
+  <string name="status_send_success">Envío exitoso</string>
+  <string name="timestamp">Fecha y hora</string>
 </resources>

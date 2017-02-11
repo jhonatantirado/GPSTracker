@@ -14,6 +14,13 @@
         android:key="id"
         android:title="@string/settings_id_title" />
 
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="SendToServer"
+        android:summaryOff="@string/settings_sendtoserver_off_summary"
+        android:summaryOn="@string/settings_sendtoserver_on_summary"
+        android:title="@string/settings_sendtoserver"/>
+
     <EditTextPreference
         android:defaultValue="demo.traccar.org"
         android:key="address"
@@ -51,8 +58,15 @@
         android:summary="@string/settings_provider_summary"
         android:title="@string/settings_provider_title" />
 
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="SendSMS"
+        android:summaryOff="@string/settings_sendsms_off_summary"
+        android:summaryOn="@string/settings_sendsms_on_summary"
+        android:title="@string/settings_sendsms"/>
+
     <EditTextPreference
-        android:defaultValue="985093748"
+        android:defaultValue=""
         android:key="cellphone"
         android:numeric="integer"
         android:summary="@string/settings_cellphone"

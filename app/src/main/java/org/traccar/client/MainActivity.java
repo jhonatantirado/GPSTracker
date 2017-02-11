@@ -54,6 +54,8 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
     public static final String KEY_PROVIDER = "provider";
     public static final String KEY_STATUS = "status";
     public static final String KEY_CELLPHONE = "cellphone";
+    public static final String KEY_SENDTOSERVER = "SendToServer";
+    public static final String KEY_SENDSMS ="SendSMS";
 
     private static final int PERMISSIONS_REQUEST_LOCATION = 2;
 
@@ -134,12 +136,43 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
             }
         });
 
+/*        findPreference(KEY_SENDTOSERVER).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue != null) {
+                    try {
+                        boolean value = (boolean) newValue;
+                        return value;
+                    } catch (NumberFormatException e) {
+                        Log.w(TAG, e);
+                    }
+                }
+                return false;
+            }
+        });
+
+        findPreference(KEY_SENDSMS).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue != null) {
+                    try {
+                        boolean value = (boolean) newValue;
+                        return value;
+                    } catch (NumberFormatException e) {
+                        Log.w(TAG, e);
+                    }
+                }
+                return false;
+            }
+        });*/
+
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, AutostartReceiver.class), 0);
 
         if (sharedPreferences.getBoolean(KEY_STATUS, false)) {
             startTrackingService(true, false);
         }
+
     }
 
     private void removeLauncherIcon() {
@@ -198,6 +231,8 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         findPreference(KEY_INTERVAL).setEnabled(enabled);
         findPreference(KEY_PROVIDER).setEnabled(enabled);
         findPreference(KEY_CELLPHONE).setEnabled(enabled);
+        findPreference(KEY_SENDTOSERVER).setEnabled(enabled);
+        findPreference(KEY_SENDSMS).setEnabled(enabled);
     }
 
     @Override
@@ -274,6 +309,9 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
                     15000, 15000, alarmIntent);
         } else {
             sharedPreferences.edit().putBoolean(KEY_STATUS, false).commit();
+            sharedPreferences.edit().putBoolean(KEY_SENDTOSERVER, false).commit();
+            sharedPreferences.edit().putBoolean(KEY_SENDSMS, false).commit();
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 TwoStatePreference preference = (TwoStatePreference) findPreference(KEY_STATUS);
                 preference.setChecked(false);

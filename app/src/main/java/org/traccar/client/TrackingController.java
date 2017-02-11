@@ -23,18 +23,22 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.lang.ref.PhantomReference;
+
 public class TrackingController implements PositionProvider.PositionListener, NetworkManager.NetworkHandler {
 
     private static final String TAG = TrackingController.class.getSimpleName();
     private static final int RETRY_DELAY = 30 * 1000;
     private static final int WAKE_LOCK_TIMEOUT = 120 * 1000;
 
-    private static final String MESSAGE_BODY = "Hello, Sendy! You've got a message from Pere.";
-    private static final String PHONE_NUMBER = "999888777";
+    private String MESSAGE_BODY = "New message:";
+    private String TIMESTAMP="Timestamp";
+    private String POSITION="Position";
+    private String PHONE_NUMBER = "123456789";
     private boolean SendToServer = false;
-    private boolean SendSMS = true;
+    private boolean SendSMS = false;
     //http://maps.google.com/?q=<lat>,<lng>
-    private static final String GMAPS_URI = "http://maps.google.com/?q=";
+    private String GMAPS_URI = "http://maps.google.com/?q=";
 
     private boolean isOnline;
     private boolean isWaiting;
@@ -70,6 +74,13 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
 
     public TrackingController(Context context) {
         this.context = context;
+
+        MESSAGE_BODY = context.getString(R.string.message);
+        TIMESTAMP = context.getString(R.string.timestamp);
+        POSITION = context.getString(R.string.position);
+        PHONE_NUMBER = context.getString(R.string.phonenumber);
+        GMAPS_URI = context.getString(R.string.google_maps_url);
+
         handler = new Handler();
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (preferences.getString(MainActivity.KEY_PROVIDER, "gps").equals("mixed")) {
@@ -87,6 +98,9 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
         secure = preferences.getBoolean(MainActivity.KEY_SECURE, false);
 
         cellphone =  preferences.getString(MainActivity.KEY_CELLPHONE, PHONE_NUMBER);
+
+        SendToServer = preferences.getBoolean(MainActivity.KEY_SENDTOSERVER, false);
+        SendSMS = preferences.getBoolean(MainActivity.KEY_SENDSMS, false);
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
@@ -231,11 +245,15 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
 
         if (SendSMS)
         {
-            //TextMessageManager.sendSMS(PHONE_NUMBER, MESSAGE_BODY + " - Lat:" + String.valueOf(position.getLatitude()) + " - Long:" + String.valueOf(position.getLongitude()));
-            String currentLocation;
-            currentLocation = GMAPS_URI + String.valueOf(position.getLatitude()) + "," + String.valueOf(position.getLongitude());
-            TextMessageManager.sendSMS(cellphone, MESSAGE_BODY + " - " + currentLocation);
-            delete(position);
+            if (cellphone != null && !cellphone.equals(""))
+            {
+                String currentLocation;
+                String timeStamp;
+                currentLocation = GMAPS_URI + String.valueOf(position.getLatitude()) + "," + String.valueOf(position.getLongitude());
+                timeStamp = String.valueOf(position.getTime());
+                TextMessageManager.sendSMS(cellphone, MESSAGE_BODY + " - " + TIMESTAMP +": " + timeStamp + " - "+ POSITION +": " +  currentLocation);
+                delete(position);
+            }
         }
     }
 
