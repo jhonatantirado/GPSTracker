@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.lang.ref.PhantomReference;
@@ -31,9 +32,6 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
     private static final int RETRY_DELAY = 30 * 1000;
     private static final int WAKE_LOCK_TIMEOUT = 120 * 1000;
 
-    private String MESSAGE_BODY = "New message:";
-    private String TIMESTAMP="Timestamp";
-    private String POSITION="Position";
     private String PHONE_NUMBER = "123456789";
     private boolean SendToServer = false;
     private boolean SendSMS = false;
@@ -75,10 +73,16 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
     public TrackingController(Context context) {
         this.context = context;
 
-        MESSAGE_BODY = context.getString(R.string.message);
-        TIMESTAMP = context.getString(R.string.timestamp);
-        POSITION = context.getString(R.string.position);
+        TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String mPhoneNumber = tMgr.getLine1Number();
+        log(mPhoneNumber,null);
+
         PHONE_NUMBER = context.getString(R.string.phonenumber);
+
+        if (mPhoneNumber!=null && !mPhoneNumber.equals("")) {
+            PHONE_NUMBER=mPhoneNumber;
+        }
+
         GMAPS_URI = context.getString(R.string.google_maps_url);
 
         handler = new Handler();
@@ -125,6 +129,7 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
         } catch (SecurityException e) {
             Log.w(TAG, e);
         }
+        //export();
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -192,6 +197,7 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
                         if (result.getDeviceId().equals(preferences.getString(MainActivity.KEY_DEVICE, null))) {
                             send(result);
                         } else {
+                            log("Wrong DeviceId", null);
                             delete(result);
                         }
                     } else {
@@ -221,38 +227,74 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
         });
     }
 
+    private void export()
+    {
+        log("Exporting to CSV",null);
+        lock();
+
+        databaseHelper.exportDBAsync(new DatabaseHelper.DatabaseHandler<Void>() {
+            @Override
+            public void onComplete(boolean success, Void result) {
+                if (success) {
+                    read();
+                } else {
+                    retry();
+                }
+                unlock();
+            }
+        });
+
+        databaseHelper.deleteAllPositionsAsync(new DatabaseHelper.DatabaseHandler<Void>() {
+            @Override
+            public void onComplete(boolean success, Void result) {
+                if (success) {
+                    log("All records deleted",null);
+                } else {
+                    retry();
+                }
+                unlock();
+            }
+        });
+
+    }
+
     //Modify here to send SMS instead of WebService
     private void send(final Position position) {
-        log("send", position);
-        lock();
-        String request = ProtocolFormatter.formatRequest(address, port, secure, position);
-
-        if (SendToServer)
+        if (position!=null)
         {
-            RequestManager.sendRequestAsync(request, new RequestManager.RequestHandler() {
-                @Override
-                public void onComplete(boolean success) {
-                    if (success) {
-                        delete(position);
-                    } else {
-                        StatusActivity.addMessage(context.getString(R.string.status_send_fail));
-                        retry();
-                    }
-                    unlock();
-                }
-            });
-        }
+            log("send", position);
+            lock();
+            String request = ProtocolFormatter.formatRequest(address, port, secure, position);
 
-        if (SendSMS)
-        {
-            if (cellphone != null && !cellphone.equals(""))
+            if (SendToServer)
             {
-                String currentLocation;
-                String timeStamp;
-                currentLocation = GMAPS_URI + String.valueOf(position.getLatitude()) + "," + String.valueOf(position.getLongitude());
-                timeStamp = String.valueOf(position.getTime());
-                TextMessageManager.sendSMS(cellphone, MESSAGE_BODY + " - " + TIMESTAMP +": " + timeStamp + " - "+ POSITION +": " +  currentLocation);
-                delete(position);
+                RequestManager.sendRequestAsync(request, new RequestManager.RequestHandler() {
+                    @Override
+                    public void onComplete(boolean success) {
+                        if (success) {
+                            log("Sent by webservice", position);
+                            delete(position);
+                        } else {
+                            StatusActivity.addMessage(context.getString(R.string.status_send_fail));
+                            retry();
+                        }
+                        unlock();
+                    }
+                });
+            }
+
+            if (SendSMS)
+            {
+                if (cellphone != null && !cellphone.equals(""))
+                {
+                    String currentLocation;
+                    String timeStamp;
+                    currentLocation = GMAPS_URI + String.valueOf(position.getLatitude()) + "," + String.valueOf(position.getLongitude());
+                    timeStamp = String.valueOf(position.getTime());
+                    TextMessageManager.sendSMS(cellphone, timeStamp + " - " +  currentLocation);
+                    log("Sent by SMS", position);
+                    delete(position);
+                }
             }
         }
     }

@@ -22,7 +22,11 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Date;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -156,6 +160,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void deleteAllPositions()
+    {
+        db.execSQL("delete from position");
+        db.close();
+    }
+
     public void deletePositionAsync(final long id, DatabaseHandler<Void> handler) {
         new DatabaseAsyncTask<Void>(handler) {
             @Override
@@ -166,4 +176,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }.execute();
     }
 
+    public void deleteAllPositionsAsync(DatabaseHandler<Void> handler) {
+        new DatabaseAsyncTask<Void>(handler) {
+            @Override
+            protected Void executeMethod() {
+                deleteAllPositions();
+                return null;
+            }
+        }.execute();
+    }
+
+    public void exportDBAsync(DatabaseHandler<Void> handler) {
+        new DatabaseAsyncTask<Void>(handler) {
+            @Override
+            protected Void executeMethod() {
+                exportDB();
+                return null;
+            }
+        }.execute();
+    }
+
+    public void exportDB() {
+
+        File exportDir = new File(Environment.getExternalStorageDirectory(), "");
+        if (!exportDir.exists()) {
+            exportDir.mkdirs();
+        }
+
+        try {
+            Cursor curCSV = db.rawQuery("SELECT * FROM position ORDER BY id", null);
+            if (curCSV.getCount()>0)
+            {
+                File file = new File(exportDir, "LocationData.csv");
+                file.createNewFile();
+                CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
+
+                long id = curCSV.getLong(curCSV.getColumnIndex("id"));
+                String deviceId = curCSV.getString(curCSV.getColumnIndex("deviceId"));
+                Date time = new Date(curCSV.getLong(curCSV.getColumnIndex("time")));
+                double latitude = curCSV.getDouble(curCSV.getColumnIndex("latitude"));
+                double longitude = curCSV.getDouble(curCSV.getColumnIndex("longitude"));
+                double altitude = curCSV.getDouble(curCSV.getColumnIndex("altitude"));
+                double speed = curCSV.getDouble(curCSV.getColumnIndex("speed"));
+                double course = curCSV.getDouble(curCSV.getColumnIndex("course"));
+                double battery = curCSV.getDouble(curCSV.getColumnIndex("battery"));
+
+                csvWrite.writeNext(curCSV.getColumnNames());
+                while (curCSV.moveToNext()) {
+                    //Which column you want to export
+                    String arrStr[] = {curCSV.getString(0), curCSV.getString(1), curCSV.getString(2),curCSV.getString(3),curCSV.getString(4),curCSV.getString(5),curCSV.getString(6),curCSV.getString(7),curCSV.getString(8)};
+                    csvWrite.writeNext(arrStr);
+                }
+                csvWrite.close();
+                curCSV.close();
+            }
+        } catch (Exception sqlEx) {
+            Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
+        }
+    }
 }

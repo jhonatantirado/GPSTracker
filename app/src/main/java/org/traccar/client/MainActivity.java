@@ -136,36 +136,6 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
             }
         });
 
-/*        findPreference(KEY_SENDTOSERVER).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (newValue != null) {
-                    try {
-                        boolean value = (boolean) newValue;
-                        return value;
-                    } catch (NumberFormatException e) {
-                        Log.w(TAG, e);
-                    }
-                }
-                return false;
-            }
-        });
-
-        findPreference(KEY_SENDSMS).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (newValue != null) {
-                    try {
-                        boolean value = (boolean) newValue;
-                        return value;
-                    } catch (NumberFormatException e) {
-                        Log.w(TAG, e);
-                    }
-                }
-                return false;
-            }
-        });*/
-
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, AutostartReceiver.class), 0);
 
@@ -242,6 +212,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
                 startTrackingService(true, false);
             } else {
                 stopTrackingService();
+
             }
         } else if (key.equals(KEY_DEVICE)) {
             findPreference(KEY_DEVICE).setSummary(sharedPreferences.getString(KEY_DEVICE, null));
