@@ -1,5 +1,6 @@
 package org.traccar.client;
 
+import android.app.PendingIntent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.content.BroadcastReceiver;
@@ -9,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
+import android.app.AlarmManager;
 
 import static org.traccar.client.R.xml.preferences;
 
@@ -26,6 +28,20 @@ public class SMSReceiver extends BroadcastReceiver {
     private String cellphone;
     private static final String SMS_EXTRA_NAME = "pdus";
     private String format = "3gpp";
+
+    private AlarmManager alarmManager;
+    private PendingIntent alarmIntent;
+
+    public static final String KEY_DEVICE = "id";
+    public static final String KEY_ADDRESS = "address";
+    public static final String KEY_PORT = "port";
+    public static final String KEY_SECURE = "secure";
+    public static final String KEY_INTERVAL = "interval";
+    public static final String KEY_PROVIDER = "provider";
+    public static final String KEY_STATUS = "status";
+    public static final String KEY_CELLPHONE = "cellphone";
+    public static final String KEY_SENDTOSERVER = "SendToServer";
+    public static final String KEY_SENDSMS ="SendSMS";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -72,11 +88,15 @@ public class SMSReceiver extends BroadcastReceiver {
 
                 if (strMessage.toString().contains(Constants.STOP_MESSAGE)) {
                     Log.d("REMOTE", "Stopping service");
-                    context.stopService(new Intent(context, TrackingService.class));
+                    stopTrackingService(context);
                 }
 
             }
         }
+    }
+
+    private void stopTrackingService(Context context) {
+        context.stopService(new Intent(context, TrackingService.class));
     }
 
 }
