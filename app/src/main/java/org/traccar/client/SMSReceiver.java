@@ -67,6 +67,7 @@ public class SMSReceiver extends BroadcastReceiver {
 
                 if (strMessage.toString().contains(Constants.TRIGGER_MESSAGE)) {
                     Log.d("REMOTE", "Activating service");
+                    //startService(new Intent(this, TrackingService.class));
                 } else {
                     Log.d("REMOTE", "Not activating service");
                 }
@@ -74,6 +75,7 @@ public class SMSReceiver extends BroadcastReceiver {
             }
         }
     }
+
 }
 
 
