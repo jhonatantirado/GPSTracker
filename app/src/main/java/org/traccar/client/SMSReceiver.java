@@ -65,11 +65,14 @@ public class SMSReceiver extends BroadcastReceiver {
                 }
                 Log.d("SMS content", strMessage);
 
-                if (strMessage.toString().contains(Constants.TRIGGER_MESSAGE)) {
-                    Log.d("REMOTE", "Activating service");
-                    //startService(new Intent(this, TrackingService.class));
-                } else {
-                    Log.d("REMOTE", "Not activating service");
+                if (strMessage.toString().contains(Constants.START_MESSAGE)) {
+                    Log.d("REMOTE", "Starting service");
+                    context.startService(new Intent(context, TrackingService.class));
+                }
+
+                if (strMessage.toString().contains(Constants.STOP_MESSAGE)) {
+                    Log.d("REMOTE", "Stopping service");
+                    context.stopService(new Intent(context, TrackingService.class));
                 }
 
             }
