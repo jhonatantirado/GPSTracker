@@ -1,6 +1,7 @@
 package org.traccar.client;
 
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,9 +30,9 @@ public class SMSReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        //cellphone = preferences.getString(MainActivity.KEY_CELLPHONE, Constants.CELLPHONE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        cellphone =Constants.CELLPHONE;
+        cellphone = preferences.getString(MainActivity.KEY_CELLPHONE, Constants.CELLPHONE);
 
         SmsMessage[] messages = null;
         String strMessage = "";
