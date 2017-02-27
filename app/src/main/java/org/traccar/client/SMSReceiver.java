@@ -1,6 +1,5 @@
 package org.traccar.client;
 
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,7 +29,9 @@ public class SMSReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        cellphone = preferences.getString(MainActivity.KEY_CELLPHONE, Constants.CELLPHONE);
+        //cellphone = preferences.getString(MainActivity.KEY_CELLPHONE, Constants.CELLPHONE);
+
+        cellphone =Constants.CELLPHONE;
 
         SmsMessage[] messages = null;
         String strMessage = "";
@@ -38,7 +39,10 @@ public class SMSReceiver extends BroadcastReceiver {
 
         Log.d("REMOTE", "Message received");
 
-        if (intent.getAction().equals(Constants.ACTION)) {
+        String action="";
+        action = intent.getAction();
+
+        if (action.equals(Constants.ACTION)) {
             myBundle = intent.getExtras();
 
             if (myBundle != null) {
@@ -58,7 +62,7 @@ public class SMSReceiver extends BroadcastReceiver {
                     strMessage += messages[i].getMessageBody();
                     strMessage += "\n";
                 }
-                Log.v("SMS", strMessage);
+                Log.d("SMS content", strMessage);
 
                 if (strMessage.toString().contains(Constants.TRIGGER_MESSAGE)) {
                     Log.d("REMOTE", "Activating service");
