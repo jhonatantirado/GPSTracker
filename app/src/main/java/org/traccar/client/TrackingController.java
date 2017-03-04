@@ -73,18 +73,6 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
     public TrackingController(Context context) {
         this.context = context;
 
-        TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        String mPhoneNumber = tMgr.getLine1Number();
-        log(mPhoneNumber,null);
-
-        PHONE_NUMBER = context.getString(R.string.phonenumber);
-
-        if (mPhoneNumber!=null && !mPhoneNumber.equals("")) {
-            PHONE_NUMBER=mPhoneNumber;
-        }
-
-        GMAPS_URI = context.getString(R.string.google_maps_url);
-
         handler = new Handler();
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (preferences.getString(MainActivity.KEY_PROVIDER, "gps").equals("mixed")) {
@@ -111,7 +99,7 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
     }
 
     public void start() {
-        if (isOnline) {
+        if (SendToServer || SendSMS) {
             read();
         }
         try {
@@ -176,7 +164,7 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
             @Override
             public void onComplete(boolean success, Void result) {
                 if (success) {
-                    if (isOnline && isWaiting) {
+                    if (isWaiting) {
                         read();
                         isWaiting = false;
                     }
@@ -264,10 +252,33 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
         {
             log("send", position);
             lock();
-            String request = ProtocolFormatter.formatRequest(address, port, secure, position);
+            sendBySMS(position);
+            sendByWebService(position);
+        }
+    }
 
-            if (SendToServer)
+    private void sendBySMS(Position position) {
+        if (SendSMS)
+        {
+            if (cellphone != null && !cellphone.equals(""))
             {
+                String currentLocation;
+                String timeStamp;
+                currentLocation = GMAPS_URI + String.valueOf(position.getLatitude()) + "," + String.valueOf(position.getLongitude());
+                timeStamp = String.valueOf(position.getTime());
+                TextMessageManager.sendSMS(cellphone, timeStamp + " - " +  currentLocation);
+                log("Sent by SMS", position);
+                delete(position);
+            }
+        }
+    }
+
+    private void sendByWebService(final Position position) {
+        if (SendToServer && isOnline)
+        {
+            if (address !=null)
+            {
+                String request = ProtocolFormatter.formatRequest(address, port, secure, position);
                 RequestManager.sendRequestAsync(request, new RequestManager.RequestHandler() {
                     @Override
                     public void onComplete(boolean success) {
@@ -281,20 +292,6 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
                         unlock();
                     }
                 });
-            }
-
-            if (SendSMS)
-            {
-                if (cellphone != null && !cellphone.equals(""))
-                {
-                    String currentLocation;
-                    String timeStamp;
-                    currentLocation = GMAPS_URI + String.valueOf(position.getLatitude()) + "," + String.valueOf(position.getLongitude());
-                    timeStamp = String.valueOf(position.getTime());
-                    TextMessageManager.sendSMS(cellphone, timeStamp + " - " +  currentLocation);
-                    log("Sent by SMS", position);
-                    delete(position);
-                }
             }
         }
     }
