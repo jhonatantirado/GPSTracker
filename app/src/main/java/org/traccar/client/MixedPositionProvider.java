@@ -16,10 +16,12 @@
 package org.traccar.client;
 
 import android.content.Context;
+import android.location.GnssStatus;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -31,13 +33,22 @@ public class MixedPositionProvider extends PositionProvider implements LocationL
     private LocationListener backupListener;
     private long lastFixTime;
 
+    private GnssStatus.Callback callback;
+
     public MixedPositionProvider(Context context, PositionListener listener) {
         super(context, listener);
     }
 
     public void startUpdates() {
         lastFixTime = System.currentTimeMillis();
-        locationManager.addGpsStatusListener(this);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            locationManager.addGpsStatusListener(this);
+        }
+        else{
+            locationManager.registerGnssStatusCallback(callback);
+        }
+
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, period, 0, this);
         } catch (IllegalArgumentException e) {
@@ -47,7 +58,14 @@ public class MixedPositionProvider extends PositionProvider implements LocationL
 
     public void stopUpdates() {
         locationManager.removeUpdates(this);
-        locationManager.removeGpsStatusListener(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            locationManager.removeGpsStatusListener(this);
+        }
+        else
+        {
+            locationManager.unregisterGnssStatusCallback(callback);
+        }
+
         stopBackupProvider();
     }
 
