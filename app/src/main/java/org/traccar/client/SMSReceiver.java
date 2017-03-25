@@ -12,8 +12,6 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.app.AlarmManager;
 
-import static org.traccar.client.R.xml.preferences;
-
 /**
  * Created by Nathan on 26/02/2017.
  */

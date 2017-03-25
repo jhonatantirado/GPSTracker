@@ -1,7 +1,5 @@
 package org.traccar.client;
 
-import android.os.Build;
-import android.telephony.SmsMessage;
 import android.telephony.gsm.SmsManager;
 
 /**
