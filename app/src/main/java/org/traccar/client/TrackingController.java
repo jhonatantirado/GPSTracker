@@ -174,24 +174,7 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
         });
     }
 
-    private void getCellTowerInfo() {
-        JSONArray cellList;
-        CellTowerPositionProvider cellTowers = new CellTowerPositionProvider();
-        cellList = cellTowers.getCellTowerInformation();
-        int len = cellList.length();
-        if (len>0)
-        {
-            for (int i = 0; i < len; i++) {
-                try {
-                    Log.d("Cell Towers Information",cellList.getString(i));
-                }
-                catch (Exception ex)
-                {
-                    Log.d("Exception","Array not accessible");
-                }
-            }
-        }
-    }
+
 
     private void read() {
         log("read", null);
@@ -276,6 +259,25 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
         }
     }
 
+    private void getCellTowerInfo() {
+        JSONArray cellList;
+        CellTowerPositionProvider cellTowers = new CellTowerPositionProvider(context);
+        cellList = cellTowers.getCellTowerInformation();
+        int len = cellList.length();
+        if (len>0)
+        {
+            for (int i = 0; i < len; i++) {
+                try {
+                    Log.d("Cell Towers Information",cellList.getString(i));
+                }
+                catch (Exception ex)
+                {
+                    Log.d("Exception","Array not accessible");
+                }
+            }
+        }
+    }
+
     private void sendBySMS(Position position) {
 
         getCellTowerInfo();
@@ -329,5 +331,4 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
             }
         }, RETRY_DELAY);
     }
-
 }

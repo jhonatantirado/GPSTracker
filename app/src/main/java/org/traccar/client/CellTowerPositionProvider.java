@@ -26,6 +26,11 @@ public class CellTowerPositionProvider {
     TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
     JSONArray cellList = new JSONArray();
 
+    public CellTowerPositionProvider(Context context)
+    {
+        this.context = context;
+    }
+
     public JSONArray getCellTowerInformation()
     {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN)
