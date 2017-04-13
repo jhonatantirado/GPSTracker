@@ -23,6 +23,9 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class TrackingController implements PositionProvider.PositionListener, NetworkManager.NetworkHandler {
 
     private static final String TAG = TrackingController.class.getSimpleName();
@@ -171,6 +174,25 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
         });
     }
 
+    private void getCellTowerInfo() {
+        JSONArray cellList;
+        CellTowerPositionProvider cellTowers = new CellTowerPositionProvider();
+        cellList = cellTowers.getCellTowerInformation();
+        int len = cellList.length();
+        if (len>0)
+        {
+            for (int i = 0; i < len; i++) {
+                try {
+                    Log.d("Cell Towers Information",cellList.getString(i));
+                }
+                catch (Exception ex)
+                {
+                    Log.d("Exception","Array not accessible");
+                }
+            }
+        }
+    }
+
     private void read() {
         log("read", null);
         lock();
@@ -255,6 +277,9 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
     }
 
     private void sendBySMS(Position position) {
+
+        getCellTowerInfo();
+
         if (SendSMS)
         {
             if (cellphone != null && !cellphone.equals(""))
