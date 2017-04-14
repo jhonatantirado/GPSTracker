@@ -7,7 +7,7 @@ package org.traccar.client;
 public class Constants {
 
     public static String ACTION ="android.provider.Telephony.SMS_RECEIVED";
-    public static String CELLPHONE = "985093748";
+    public static String CELLPHONE = "123456789";
     public static String START_MESSAGE = "chapopote";
     public static String STOP_MESSAGE = "morita";
 }
