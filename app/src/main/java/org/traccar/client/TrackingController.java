@@ -280,7 +280,7 @@ public class TrackingController implements PositionProvider.PositionListener, Ne
 
     private void sendBySMS(Position position) {
 
-        //getCellTowerInfo();
+        getCellTowerInfo();
 
         if (SendSMS)
         {
