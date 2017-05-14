@@ -10,4 +10,5 @@ public class Constants {
     public static String CELLPHONE = "123456789";
     public static String START_MESSAGE = "chapopote";
     public static String STOP_MESSAGE = "morita";
+    public static String CELLTOWER_POSITION = "lionbebe";
 }
