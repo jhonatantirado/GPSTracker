@@ -32,6 +32,10 @@ public class SMSReceiver extends BroadcastReceiver {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         cellphone = preferences.getString(MainActivity.KEY_CELLPHONE, Constants.CELLPHONE);
 
+        if (cellphone.equals(Constants.CELLPHONE)){
+            return;
+        }
+
         SmsMessage[] messages = null;
         String strMessage = "";
         Bundle myBundle;
