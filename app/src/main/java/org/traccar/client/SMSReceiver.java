@@ -1,8 +1,6 @@
 package org.traccar.client;
 
-import android.app.PendingIntent;
 import android.content.SharedPreferences;
-import android.icu.text.SimpleDateFormat;
 import android.preference.PreferenceManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,9 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import android.app.AlarmManager;
-
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Created by Nathan on 26/02/2017.
@@ -27,12 +24,7 @@ public class SMSReceiver extends BroadcastReceiver {
 
     private SharedPreferences preferences;
     private String cellphone;
-    private static final String SMS_EXTRA_NAME = "pdus";
-    private String format = "3gpp";
-    private String celltower = "";
-
-    private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
+    private String cellTowerInfo = "";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -97,9 +89,7 @@ public class SMSReceiver extends BroadcastReceiver {
                             getCellTowerInfo (context);
                             break outerloop;
                         }
-
                     }
-
                 }
                 Log.d("SMS content", strMessage);
             }
@@ -115,9 +105,17 @@ public class SMSReceiver extends BroadcastReceiver {
         {
             for (int i = 0; i < len; i++) {
                 try {
-                    celltower = cellList.getString(i);
-                    Log.d("Cell Towers Information",celltower);
-                    sendBySMS(celltower);
+                    //celltower = cellList.getString(i);
+                    JSONObject tower = cellList.getJSONObject(i);
+                    String cellId = tower.getString("cellId");
+                    if (cellId != null && !cellId.equals("") && !cellId.equals("0")){
+                        String tac = tower.getString("tac");
+                        String mcc = tower.getString("mcc");
+                        String mnc = tower.getString("mnc");
+                        cellTowerInfo = "cellId:" + cellId + "-" + "tac:" + tac + "-" + "mcc:" + mcc + "-" + "mnc:" + mnc;
+                        Log.d("Cell Towers Information",cellTowerInfo);
+                        sendBySMS(cellTowerInfo);
+                    }
                 }
                 catch (Exception ex)
                 {
