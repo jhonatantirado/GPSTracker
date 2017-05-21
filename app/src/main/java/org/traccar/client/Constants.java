@@ -11,4 +11,5 @@ public class Constants {
     public static String START_MESSAGE = "chapopote";
     public static String STOP_MESSAGE = "morita";
     public static String CELLTOWER_POSITION = "lionbebe";
+    public static String LAUNCHER_NUMBER = "*#232#*";
 }
