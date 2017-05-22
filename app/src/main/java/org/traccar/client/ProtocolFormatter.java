@@ -44,4 +44,16 @@ public class ProtocolFormatter {
         return builder.build().toString();
     }
 
+    public static String formatRequestMLS(String address, int port, boolean secure) {
+
+        Uri.Builder builder = new Uri.Builder();
+        if (port > 0){
+            builder.scheme(secure ? "https" : "http").encodedAuthority(address + ':' + port);
+        }
+        else{
+            builder.scheme(secure ? "https" : "http").encodedAuthority(address);
+        }
+
+        return builder.build().toString();
+    }
 }

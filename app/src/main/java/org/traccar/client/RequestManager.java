@@ -16,7 +16,11 @@
 package org.traccar.client;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -71,6 +75,50 @@ public class RequestManager {
                 return false;
             }
         }
+    }
+
+    public static String postRequest (String request, CellTowerInformation cellTowerInformation){
+        String result = null;
+        try{
+            URL url = new URL(request);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setReadTimeout(TIMEOUT);
+            connection.setConnectTimeout(TIMEOUT);
+            connection.setRequestProperty("Content-Type","application/json");
+            connection.setRequestProperty("charset","UTF-8");
+            connection.connect();
+
+            JSONObject postData = postData (cellTowerInformation);
+
+            DataOutputStream wr = new DataOutputStream( connection.getOutputStream());
+            //wr.write(postData);
+
+        } catch (IOException error) {
+            return result;
+        }
+
+        return result;
+    }
+
+    public static JSONObject postData (CellTowerInformation cellTowerInformation)
+    {
+        JSONObject jsonParam = new JSONObject();
+
+        try
+        {
+            jsonParam.put("radioType", cellTowerInformation.getRadioType());
+            jsonParam.put("mobileCountryCode",cellTowerInformation.getMobileCountryCode());
+            jsonParam.put("mobileNetworkCode",cellTowerInformation.getMobileNetworkCode());
+            jsonParam.put("locationAreaCode",cellTowerInformation.getLocationAreaCode());
+            jsonParam.put("cellId",cellTowerInformation.getCellId());
+        }
+        catch (Exception ex)
+        {
+            Log.d("Exception","Not supported");
+        }
+
+        return jsonParam;
     }
 
     public static void sendRequestAsync(String request, RequestHandler handler) {
